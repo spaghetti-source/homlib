@@ -30,7 +30,7 @@ print(hom(T, G))
 ### C++
 
 ````
-https://github.com/spaghetti-source/homlib/
+git clone https://github.com/spaghetti-source/homlib/
 cd homlib
 make
 ````
@@ -40,7 +40,7 @@ make
 It depends on pybind11 (https://github.com/pybind/pybind11)
 
 ````
-https://github.com/spaghetti-source/homlib/
+git clone https://github.com/spaghetti-source/homlib/
 pip3 install ./homlib
 ````
 
