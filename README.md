@@ -42,6 +42,20 @@ https://github.com/spaghetti-source/homlib/
 pip3 install ./homlib
 ````
 
+## Uninstall
+
+### C++
+
+````
+rm homlib
+````
+
+### Python
+
+````
+pip3 uninstall homlib
+rm homlib
+````
 
 ## Author
 
