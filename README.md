@@ -1,8 +1,8 @@
-# homlib --- Homomorphism Counting Algorithm
+# homlib --- An implementation of a Homomorphism Counting Algorithm
 
 ## Description
 
-A C++ implementation of graph homomorphism counting algorithm and a Python interface.
+This library computes the number of graph homomophisms.
 
 
 This implements Diaz--Serna--Thilikos's dynamic programming algorithm on a nice tree decomposition, where the greedy heuristics is used to find a tree decomposition.
@@ -27,19 +27,17 @@ print(hom(T, G))
 
 ## Install
 
-### Compile
-
-require:
-- boost::python
-- g++ supporting -c++17 option
+### C++
 
 ````
 make
 ````
 
-### Install
+### Python
 
-copy ./build/homlib.so to a suitable directory.
+````
+pip3 install ./homlib
+````
 
 
 ## Author

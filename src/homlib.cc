@@ -1,22 +1,15 @@
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include "hom.hh"
 
-BOOST_PYTHON_MODULE(homlib) {
-  using namespace boost::python;
+using namespace pybind11;
 
-  class_<Graph>("Graph", init<int>())
-    .def("addEdge", &Graph::addEdge);
-
-  def("hom", &hom<double>);
-  def("homint", &hom<long long>);
-
-  /*
-  class_<VTree>("VTree", init<int>())
-    .def("set_root", &VTree::set_root)
-    .def("set_child", &VTree::set_child)
-    .def("show", &VTree::show);
-    */
-
-  //class_<SDD>("SDD", init<VTree>());
+PYBIND11_MODULE(homlib, m) {
+    m.doc() = "pybind11 example plugin";
+    class_<Graph>(m, "Graph")
+        .def(init<int>())
+        .def("addEdge", &Graph::addEdge);
+    m.def("hom", &hom<double>, "homomorphism counting function (double)");
+    m.def("homint", &hom<long long>, "homomorphism counting function (int64_t)");
 }
