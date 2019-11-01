@@ -30,12 +30,15 @@ print(hom(T, G))
 ### C++
 
 ````
+https://github.com/spaghetti-source/homlib/
+cd homlib
 make
 ````
 
 ### Python
 
 ````
+https://github.com/spaghetti-source/homlib/
 pip3 install ./homlib
 ````
 
