@@ -5,7 +5,7 @@
 A C++ implementation of graph homomorphism counting algorithm and a Python interface.
 
 
-This implements Diaz--Serna--Thilikos's dynamic programming algorithm on a nice tree decomposition. This implements the greedy heuristics to find a tree decomposition.
+This implements Diaz--Serna--Thilikos's dynamic programming algorithm on a nice tree decomposition, where the greedy heuristics to find a tree decomposition.
 
 Josep Diaz, Maria Serna, Dimitrios M. Thilikos (2002): "Counting H-colorings of partial k-trees", Theoretical Computer Science, 281 (2002), 291 – 309.
 
@@ -24,6 +24,23 @@ G.addEdge(2,0)
 
 print(hom(T, G))
 ````
+
+## Install
+
+### Compile
+
+require:
+- boost::python
+- g++ supporting -c++17 option
+
+````
+make
+````
+
+### Install
+
+copy ./build/homlib.so to a suitable directory.
+
 
 ## Author
 
