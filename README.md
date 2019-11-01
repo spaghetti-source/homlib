@@ -16,10 +16,6 @@ It is a dynamic programming on tree decomposition.
 ## Usage
 
 ````
-import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../build'))
-
-
 from homlib import Graph, hom
 T = Graph(3)
 T.addEdge(0,1)
