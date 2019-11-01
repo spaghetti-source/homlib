@@ -1,25 +1,38 @@
 # homlib --- Homomorphism Counting Algorithm
 
+## Description
+
+A C++ implementation of homomorphism counting algorithm.
+
+## Algorithm
+
+It is a dynamic programming on tree decomposition.
+
+- For tree decomposition, it uses the greedy heuristics.
+- For homomorphism counting, I implemented [1]. 
+
+[1] Josep Diaz, Maria Serna, Dimitrios M. Thilikos (2002): "Counting H-colorings of partial k-trees", Theoretical Computer Science, 281 (2002), 291 – 309.
+
 ## Usage
 
 ````
-import homlib
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../build'))
 
-F = homlib.Graph(3)
-F.addEdge(0, 1)
-F.addEdge(1, 2)
-F.addEdge(2, 0)
 
-G = homlib.Graph(4)
-G.addEdge(0, 1)
-G.addEdge(1, 2)
-G.addEdge(2, 0)
-G.addEdge(1, 3)
-G.addEdge(3, 2)
+from homlib import Graph, hom
+T = Graph(3)
+T.addEdge(0,1)
+T.addEdge(1,2)
 
-print(homlib.hom(F, G))
+G = Graph(3)
+G.addEdge(0,1)
+G.addEdge(1,2)
+G.addEdge(2,0)
+
+print(hom(T, G))
 ````
 
-# Author
+## Author
 
 Takanori Maehara (maehara@prefield.com)
