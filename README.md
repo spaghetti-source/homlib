@@ -37,6 +37,8 @@ make
 
 ### Python
 
+It depends on pybind11 (https://github.com/pybind/pybind11)
+
 ````
 https://github.com/spaghetti-source/homlib/
 pip3 install ./homlib
