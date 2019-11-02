@@ -95,12 +95,10 @@ void test_tree() {
 }
 
 int main() {
-  test_tree();
-  /*
   srand(time(0));
   test_count_vertex();
   test_count_edge();
   test_count_triangle();
   test2();
-  */
+  test_tree();
 }
