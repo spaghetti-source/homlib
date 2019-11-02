@@ -80,14 +80,15 @@ void test_count_tree() {
     T.addEdge(rand() % i, i);
   }
 
-  int n = 1000;
+  int n = 10000, m = 1000000;
   Graph G(n);
-  for (int i = 0; i < n; ++i) {
-    for (int j = i+1; j < n; ++j) {
-      if (rand() % 2 == 0) {
-        G.addEdge(i, j);
-      }
-    }
+  std::set<std::pair<int,int>> edges;
+  while (edges.size() < m) {
+    int u = 1 + (rand() % (n-1)), v = rand() % u;
+    edges.insert(std::make_pair(u, v));
+  }
+  for (auto [u, v]: edges) {
+    G.addEdge(u, v);
   }
   hom<int>(T, G);
 }
