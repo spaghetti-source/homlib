@@ -6,7 +6,7 @@
 using namespace pybind11;
 
 PYBIND11_MODULE(homlib, m) {
-    m.doc() = "pybind11 example plugin";
+    m.doc() = "homomorphism counting library";
     class_<Graph>(m, "Graph")
         .def(init<int>())
         .def("addEdge", &Graph::addEdge);

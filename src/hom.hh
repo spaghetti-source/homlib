@@ -124,11 +124,47 @@ struct HomomorphismCounting {
   }
 };
 
+// Computing hom(F, G) for tree F.
+template <class Value>
+struct HomomorphismCountingTree {
+  Graph F, G;
+  HomomorphismCountingTree(Graph F_, Graph G_) : F(F_), G(G_) { }
+  Value run() {
+    auto hom_r = run(0, -1);
+    return accumulate(hom_r.begin(), hom_r.end(), 0);
+  }
+  std::vector<Value> run(int x, int p) {
+    std::vector<Value> hom_x(G.n, 1);
+    for (int y: F.adj[x]) {
+      if (y == p) continue;
+      auto hom_y = run(y, x);
+      for (int a = 0; a < G.n; ++a) {
+        Value sum = 0;
+        for (int b: G.adj[a]) sum += hom_y[b];
+        hom_x[a] *= sum;
+      }
+    }
+    return hom_x;
+  }
+};
+
+// both F and G are connected
+template <class Value>
+Value hom_(Graph F, Graph G) {
+  if (isTree(F)) {
+    return HomomorphismCountingTree<Value>(F, G).run();
+  } else {
+    return HomomorphismCounting<Value>(F, G).run();
+  }
+}
 template <class Value>
 Value hom(Graph F, Graph G) {
-  Value value = 0;
-  for (auto Gi: connectedComponents(G)) {
-    value += HomomorphismCounting<Value>(F, Gi).run();
+  Value value = 1;
+  for (auto Fi: connectedComponents(F)) {
+    Value value_i = 0;
+    for (auto Gj: connectedComponents(G)) 
+      value_i += hom_<Value>(Fi, Gj);
+    value *= value_i;
   }
   return value;
 }

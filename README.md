@@ -5,7 +5,7 @@
 This library computes the number of graph homomophisms, hom(F, G).
 
 
-This implements Diaz--Serna--Thilikos's dynamic programming algorithm on a nice tree decomposition, where the greedy heuristics is used to find a tree decomposition. The complexity is O(|V(G)|^{tw(F)+1}).
+This implements Diaz--Serna--Thilikos's dynamic programming algorithm on a nice tree decomposition, where the greedy heuristics is used to find a tree decomposition. The complexity is O(poly(|V(F)|) |V(G)|^{tw(F)+1}). If F is tree, it runs in O(|V(F)||E(G)|).
 
 Josep Diaz, Maria Serna, Dimitrios M. Thilikos (2002): "Counting H-colorings of partial k-trees", Theoretical Computer Science, 281 (2002), 291 – 309.
 

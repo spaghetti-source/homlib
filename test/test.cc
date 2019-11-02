@@ -74,10 +74,33 @@ void test2() {
   assert(hom<int>(T, G) == 2);
 }
 
+void test_tree() {
+  int t = 5;
+  Graph T(t);
+  for (int i = 1; i < t; ++i) {
+    T.addEdge(rand() % i, i);
+  }
+  int n = 20;
+  Graph G(n);
+  for (int i = 0; i < n; ++i) {
+    for (int j = i+1; j < n; ++j) {
+      if (rand() % 2 == 0) {
+        G.addEdge(i, j);
+      }
+    }
+  }
+  HomomorphismCounting<int> hom(T, G);
+  HomomorphismCountingTree<int> homTree(T, G);
+  assert(hom.run() == homTree.run());
+}
+
 int main() {
+  test_tree();
+  /*
   srand(time(0));
   test_count_vertex();
   test_count_edge();
   test_count_triangle();
   test2();
+  */
 }

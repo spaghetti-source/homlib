@@ -11,6 +11,20 @@ struct Graph {
   }
 };
 
+bool isTree(Graph G) {
+  std::vector<int> parent(G.n, -1);
+  std::vector<int> stack = {0};
+  for (int i = 0; i < stack.size(); ++i) {
+    int u = stack[i];
+    for (int v: G.adj[u]) {
+      if (v == parent[u]) continue;
+      if (parent[v] >= 0) return false;
+      parent[v] = u;
+      stack.push_back(v);
+    }
+  }
+  return stack.size() == G.n;
+}
 std::vector<Graph> connectedComponents(Graph G) {
   std::vector<int> index(G.n, -1);
   std::vector<Graph> components;
