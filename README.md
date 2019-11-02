@@ -59,6 +59,7 @@ also
 cd /home/user/$username$/anaconda3/compiler_compat/
 mv ld ld_old
 ```
+Similar issue can be found [here](https://github.com/pytorch/pytorch/issues/16683).
 
 ## Uninstall
 
