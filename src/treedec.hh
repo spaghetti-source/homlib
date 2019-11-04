@@ -39,19 +39,24 @@ struct NiceTreeDecomposition {
   int left(int x)   const { return std::get<1>(nodes[x]); }
   int right(int x)  const { return std::get<2>(nodes[x]); }
 
+  bool isLeaf(int x) const { return type(x) == INTRODUCE && child(x) == -1; }
+  bool isIntroduce(int x) const { return type(x) == INTRODUCE; }
+  bool isJoin(int x) const { return type(x) == JOIN; }
+  bool isForget(int x) const { return type(x) == FORGET; }
+
   void display() {
     display(root, 0);
   }
   void display(int x, int tab) {
     if (x == -1) return;
     if (type(x) == INTRODUCE) {
-      std::cout << std::string(tab, ' ') << "Introduce " << vertex(x) << std::endl;
+      std::cout << std::string(tab, ' ') << x << ": Introduce " << vertex(x) << std::endl;
       display(child(x), tab+2);
     } else if (type(x) == FORGET) {
-      std::cout << std::string(tab, ' ') << "Forget " << vertex(x) << std::endl;
+      std::cout << std::string(tab, ' ') << x << ": Forget " << vertex(x) << std::endl;
       display(child(x), tab+2);
     } else if (type(x) == JOIN) {
-      std::cout << std::string(tab, ' ') << "Join" << std::endl;
+      std::cout << std::string(tab, ' ') << x << ": Join" << std::endl;
       display(left(x), tab+2);
       display(right(x), tab+2);
     }

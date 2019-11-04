@@ -4,9 +4,17 @@
 #include "graph.hh"
 #include "treedec.hh"
 
+#include "omp.h"
+
 template <class Value>
 struct HomomorphismCounting {
-  using MapType = std::vector<int>;
+  Graph G, F;
+  NiceTreeDecomposition NTD;
+  HomomorphismCounting(Graph F_, Graph G_) : F(F_), G(G_) {
+    for (auto &nbh: F.adj) sort(nbh.begin(), nbh.end());  
+    for (auto &nbh: G.adj) sort(nbh.begin(), nbh.end());  
+    NTD = niceTreeDecomposition(F);
+  }
   struct VectorHash {
     size_t operator()(const std::vector<int> &x) const {
       constexpr size_t p = 1e9+7;
@@ -17,110 +25,78 @@ struct HomomorphismCounting {
       return hash;
     }
   };
-  using MapDict = std::unordered_map<MapType, Value, VectorHash>;
-
-  template <class It>
-  static bool next_radix(It begin, It end, int base) {
-    for (It cur = begin; cur != end; ++cur) {
-      if ((*cur += 1) >= base) *cur = 0;
-      else return true;
-    }
-    return false;
-  }
-  static std::vector<std::vector<int>> allMaps(int t, int n) {
-    std::vector<int> v(t);
-    if (t == 0) return {v};
-    std::vector<std::vector<int>> maps;
-    do {
-      maps.push_back(v);
-    } while (next_radix(v.begin(), v.end(), n));
-    return maps;
-  }
-
-  Graph F, G;
-  NiceTreeDecomposition NTD;
-
-  HomomorphismCounting(Graph F_, Graph G_) : F(F_), G(G_) {
-    for (int a = 0; a < G.n; ++a) {
-      sort(G.adj[a].begin(), G.adj[a].end());
-    }
-    for (int u = 0; u < F.n; ++u) {
-      sort(F.adj[u].begin(), F.adj[u].end());
-    }
-    NTD = niceTreeDecomposition(F);
-  }
+  using DPTable = std::unordered_map<std::vector<int>, Value, VectorHash>;
   Value run() {
     auto [I, X] = run(NTD.root);
-    return I[MapType()];
+    return I[std::vector<int>()];
   }
-  template <class It, class T>
-  static int index(It begin, It end, T x) {
-    return distance(begin, lower_bound(begin, end, x));
-  }
-  std::pair<MapDict, std::vector<int>> run(int x) {
-    MapDict I;
-    if (NTD.type(x) == NiceTreeDecomposition::INTRODUCE && NTD.child(x) == -1) {
-      std::vector<int> X = {NTD.vertex(x)};
-      for (auto phi: allMaps(1, G.n)) {
+  std::pair<DPTable, std::vector<int>> run(int x) {
+    DPTable I, J, K;
+    std::vector<int> X;
+    if (NTD.isLeaf(x)) {
+      X = {NTD.vertex(x)};
+      for (int a = 0; a < G.n; ++a) {
+        std::vector<int> phi = {a};
         I[phi] = 1;
       }
-      return make_pair(I, X);
-    } 
-    if (NTD.type(x) == NiceTreeDecomposition::INTRODUCE) {
-      auto [J, X] = run(NTD.child(x));
-      int k = index(X.begin(), X.end(), NTD.vertex(x));
+    } else if (NTD.isIntroduce(x)) {
+      std::tie(J, X) = run(NTD.child(x));
+      int p = std::distance(X.begin(), std::lower_bound(X.begin(), X.end(), NTD.vertex(x)));
 
-      for (auto phi: allMaps(X.size(), G.n)) {
-        std::vector<int> nbh;
-        for (int u: F.adj[NTD.vertex(x)]) {
-          int i = index(X.begin(), X.end(), u);
-          if (i != X.size()) {
-            nbh.push_back(phi[i]);
+      std::vector<int> candidate_id;
+      int i = 0;
+      for (auto v: F.adj[NTD.vertex(x)]) {
+        while (i < X.size() && X[i] < v) ++i;
+        if (i == X.size()) break;
+        if (X[i] == v) candidate_id.emplace_back(i);
+      }
+      if (candidate_id.empty()) {
+        candidate_id.resize(G.n);
+        std::iota(candidate_id.begin(), candidate_id.end(), 0);
+      }
+      for (auto [phi, val]: J) {
+        std::vector<int> candidate_a;
+        std::sort(candidate_id.begin(), candidate_id.end(), [&](int i, int j) {
+          return G.adj[i].size() < G.adj[j].size();
+        });
+        for (int i: candidate_id) {
+          int a = phi[i];
+          if (candidate_a.empty()) {
+            candidate_a = G.adj[a];
+          } else {
+            std::vector<int> temp; 
+            std::set_intersection(candidate_a.begin(), candidate_a.end(),
+                G.adj[a].begin(), G.adj[a].end(), std::back_inserter(temp));
+            candidate_a.swap(temp);
           }
         }
         auto psi = phi;
-        psi.insert(psi.begin()+k, 0);
-        for (int a = 0; a < G.n; ++a) {
-          psi[k] = a;
-          bool condition = true;
-          for (int b: nbh) {
-            if (!binary_search(G.adj[a].begin(), G.adj[a].end(), b)) {
-              condition = false;
-              break;
-            }
-          }
-          if (condition) {
-            I[psi] = J[phi];
-          }
+        psi.insert(psi.begin()+p, 0);
+        for (int a: candidate_a) {
+          psi[p] = a;
+          I[psi] = val;
         }
       }
-      X.insert(X.begin()+k, NTD.vertex(x));
-      return make_pair(I, X);
-    } 
-    if (NTD.type(x) == NiceTreeDecomposition::FORGET) {
-      auto [J, X] = run(NTD.child(x));
-      int k = index(X.begin(), X.end(), NTD.vertex(x));
-      X.erase(X.begin()+k);
-      for (auto phi: allMaps(X.size(), G.n)) {
+      X.insert(X.begin()+p, NTD.vertex(x));
+    } else if (NTD.isForget(x)) {
+      std::tie(J, X) = run(NTD.child(x));
+      int p = std::distance(X.begin(), std::lower_bound(X.begin(), X.end(), NTD.vertex(x)));
+      X.erase(X.begin() + p);
+
+      for (auto [phi, val]: J) {
         auto psi = phi;
-        psi.insert(psi.begin()+k, 0);
-        for (int a = 0; a < G.n; ++a) {
-          psi[k] = a;
-          I[phi] += J[psi];
-        }
+        psi.erase(psi.begin() + p);
+        I[psi] += val;
       }
-      return make_pair(I, X);
-    } 
-    if (NTD.type(x) == NiceTreeDecomposition::JOIN) {
-      auto [J, X] = run(NTD.left(x));
-      auto [K, Y] = run(NTD.right(x));
-      assert(X == Y);
-      for (auto phi: allMaps(X.size(), G.n)) {
-        I[phi] = J[phi] * K[phi];
+    } else if (NTD.isJoin(x)) {
+      std::tie(J, X) = run(NTD.left(x));
+      std::tie(K, X) = run(NTD.right(x));
+      if (J.size() > K.size()) swap(J, K);
+      for (auto& [phi, val]: J) {
+        if (K.count(phi)) I[phi] = val * K[phi];
       }
-      return make_pair(I, X);
     }
-    assert(false);
+    return std::make_pair(I, X);
   }
 };
 
@@ -131,7 +107,7 @@ struct HomomorphismCountingTree {
   HomomorphismCountingTree(Graph F_, Graph G_) : F(F_), G(G_) { }
   Value run() {
     auto hom_r = run(0, -1);
-    return accumulate(hom_r.begin(), hom_r.end(), 0);
+    return accumulate(hom_r.begin(), hom_r.end(), Value(0));
   }
   std::vector<Value> run(int x, int p) {
     std::vector<Value> hom_x(G.n, 1);
@@ -168,4 +144,3 @@ Value hom(Graph F, Graph G) {
   }
   return value;
 }
-
